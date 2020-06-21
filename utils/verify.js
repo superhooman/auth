@@ -10,6 +10,7 @@ module.exports = async (req, res, next) => {
     try{
         const verified = jwt.verify(token, process.env.TOKEN_SECRET);
         if (verified) {
+            req.user = verified._id;
             return next();
         }
         return res.json({

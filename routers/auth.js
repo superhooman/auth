@@ -3,6 +3,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const router = require("express").Router();
 const User = require("../models/user");
+const verify = require("../utils/verify");
 
 router.post("/register", async (req, res) => {
     const {error} = validateUser(req.body);
@@ -81,13 +82,47 @@ router.post("/login", async (req, res) => {
     const token = jwt.sign(
         {
           _id: user._id,
-          admin: user.admin
         },
         process.env.TOKEN_SECRET
     );
     return res.json({
         success: true,
         token //token: token
+    })
+})
+
+router.post("/bio", verify, async (req, res) => {
+    if(!req.body.bio){
+        return res.json({
+            success: false,
+            error: "No bio"
+        })
+    }
+    const user = await User.findByIdAndUpdate(req.user, {
+        bio: req.body.bio
+    }, {
+        new: true
+    })
+
+    return res.json({
+        success: true,
+        user
+    })
+})
+
+router.get("/user/:id", async  (req, res) => {
+    if(!req.params.id){
+        return res.json({
+            success: false,
+            error: "No id"
+        })
+    }
+    const user = await User.findById(req.params.id, {
+        password: false
+    });
+    return res.json({
+        success: true,
+        user
     })
 })
 

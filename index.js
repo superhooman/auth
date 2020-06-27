@@ -11,6 +11,8 @@ mongoose.connect(process.env.DB_CONNECT);
 
 app.use(bodyParser.json());
 
+app.use(express.static("static"))
+
 app.use("/post", postRouter);
 app.use("/auth", authRouter);
 

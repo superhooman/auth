@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.2/axios.min.js"></script>
+</head>
+
+<body>
+    <h1>Login</h1>
+    <form id="form">
+        <input id="login" type="text">
+        <input id="password" type="password">
+        <button>login</button>
+    </form>
+    <h1>Post</h1>
+    <form id="post">
+        <input id="title" type="text">
+        <input id="body" type="text">
+        <button>add post</button>
+    </form>
+</body>
+<script>
+    function login(e) {
+        e.preventDefault()
+        var login = document.getElementById("login").value;
+        var password = document.getElementById("password").value;
+        axios({
+            url: "http://localhost:3000/auth/login",
+            method: "POST",
+            data: {
+                login,
+                password
+            }
+        }).then((res) => {
+            if (res.data && res.data.success) {
+                localStorage.setItem("token", res.data.token)
+                alert(res.data.token)
+            } else {
+                alert("Ошибка")
+            }
+        })
+    }
+    document.getElementById("form").addEventListener("submit", login)
+    function addPost(e) {
+        e.preventDefault();
+        var token = localStorage.getItem("token")
+        var title = document.getElementById("title").value;
+        var body = document.getElementById("body").value;
+        axios({
+            url: "http://localhost:3000/post/add",
+            method: "POST",
+            headers: {
+                Authorization: "Bearer " + token
+            },
+            data: {
+                title,
+                body
+            }
+        }).then((res) => {
+            if (res.data && res.data.success) {
+                alert(res.data.post)
+            } else {
+                alert("Ошибка")
+            }
+        })
+    }
+    document.getElementById("post").addEventListener("submit", addPost)
+</script>
+
+</html>

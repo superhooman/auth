@@ -1,4 +1,5 @@
 const validateUser = require("../validators/user");
+const validateChange = require("../validators/changePassword");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const router = require("express").Router();
@@ -107,6 +108,50 @@ router.post("/bio", verify, async (req, res) => {
     return res.json({
         success: true,
         user
+    })
+})
+
+router.post("/changePassword", async (req, res) => {
+    const {error} = validateChange(req.body);
+
+    if(error){
+        return res.json({
+            success: false,
+            error: error.details[0].message
+        })
+    }
+
+    const user = await User.findOne({
+        login: req.body.login
+    })
+
+    if(!user){
+        return res.json({
+            success: false,
+            error: "No user"
+        })
+    }
+
+    const validPass = await bcrypt.compare(req.body.password, user.password);
+
+    if (!validPass) {
+        return res.json({
+            success: false,
+            error: "Wrong password"
+        });
+    }
+
+    const salt = await bcrypt.genSalt(10)
+    const hashedPassword = await bcrypt.hash(req.body.newPassword, salt);
+
+    const newUser = await User.findByIdAndUpdate(user._id, {
+        password: hashedPassword
+    }, {
+        new: true
+    })
+
+    return res.json({
+        success: true
     })
 })
 

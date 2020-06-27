@@ -9,6 +9,12 @@
 </head>
 
 <body>
+    <h1>Register</h1>
+    <form id="reg">
+        <input id="login" type="text">
+        <input id="password" type="password">
+        <button>register</button>
+    </form>
     <h1>Login</h1>
     <form id="form">
         <input id="login" type="text">
@@ -21,8 +27,51 @@
         <input id="body" type="text">
         <button>add post</button>
     </form>
+    <div id="posts">
+
+    </div>
 </body>
 <script>
+    function getPosts() {
+        axios({
+            url: "http://localhost:3000/post/get",
+            method: "GET"
+        }).then(res => {
+            if (res.data && res.data.success) {
+                const cont = document.getElementById("posts");
+                cont.innerHTML = ""
+                res.data.posts.reverse().forEach(post => {
+                    const el = document.createElement("div");
+                    el.innerHTML = `
+                        <h3>${post.title}</h3>
+                        <p>${post.body}</p>
+                    `;
+                    cont.appendChild(el)
+                })
+            }
+        })
+    }
+    getPosts();
+    function reg(e) {
+        e.preventDefault()
+        var login = document.getElementById("login").value;
+        var password = document.getElementById("password").value;
+        axios({
+            url: "http://localhost:3000/auth/register",
+            method: "POST",
+            data: {
+                login,
+                password
+            }
+        }).then((res) => {
+            if (res.data && res.data.success) {
+                alert("Вы тут")
+            } else {
+                alert("Ошибка")
+            }
+        })
+    }
+    document.getElementById("reg").addEventListener("submit", reg)
     function login(e) {
         e.preventDefault()
         var login = document.getElementById("login").value;
@@ -61,7 +110,7 @@
             }
         }).then((res) => {
             if (res.data && res.data.success) {
-                alert(res.data.post)
+                getPosts()
             } else {
                 alert("Ошибка")
             }

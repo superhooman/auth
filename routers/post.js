@@ -24,9 +24,7 @@ router.post("/add", verify, async (req, res) => {
 })
 
 router.get("/get", async (req, res) => {
-    const posts = await Post.find({}, {
-        body: false
-    });
+    const posts = await Post.find({});
     return res.json({
         success: true,
         posts
